@@ -51,6 +51,19 @@ namespace Launcher
         }
 
         /// <summary>
+        /// Button event to launch the CSI Halcyon autoplanner prep script
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void VMATCSIHalBtn_Click(object sender, RoutedEventArgs e)
+        {
+            LaunchExe("VMATCSIAutoPlanHalcyon");
+        }
+
+
+
+
+        /// <summary>
         /// Button event to launch the optimization loop script
         /// </summary>
         /// <param name="sender"></param>
