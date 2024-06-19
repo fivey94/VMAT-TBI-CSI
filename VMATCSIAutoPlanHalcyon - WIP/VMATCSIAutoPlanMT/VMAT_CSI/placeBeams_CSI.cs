@@ -469,61 +469,19 @@ namespace VMATCSIAutoPlanMT.VMAT_CSI
                     if (i == 0) v.z = brainZCenter;
                     else
                     {
-                        v.z = brainZCenter -  i * isoSeparation;
+                        //The following code should equally space out any interior isocenters between the brain isocenter and the final
+                        //spine isocenter. It takes the total distance between the two, divides it by the number of isocenters minus one
+                        //to get a stepwise value. Then will place the isocenters until it reaches the final value in the loop function.
+                        double distanceBetweenBrainandSpine = Math.Abs(brainZCenter - (spineZMin + 100));
+                        double InteriorSeparation = Math.Round(distanceBetweenBrainandSpine / (numIsos - 1),1);
+                        v.z = brainZCenter -  i * InteriorSeparation;
+                        //v.z = brainZCenter -  i * isoSeparation;
                         //v.z = spineZMin + (numIsos - i - 1) * isoSeparation + 120.0;
-                        /*if (i == 1 && numIsos > 2)
-                        {
-                            //if this is iso 2 and the total number of isos is 3, apply this special logic to balance field
-                            //overlap between brain iso and lower spine iso
-                            //inf field superior edge.ptv spine + 18 cm = iso position + 20 cm [linac]/14 cm [halcyon] Y field extent)
-                            double infIsoFieldSupEdge = spineZMin + 180.0 + 140.0;
-                            //double infIsoFieldSupEdge = spineZMin + 180.0 + 200.0;
-                            Structure brainTarget = StructureTuningHelper.GetStructureFromId("PTV_Brain", selectedSS);
-                            //brain field inferior extent (ptv brain inf extent - 5 cm margin)
-                            double supFieldInfExtent = brainTarget.MeshGeometry.Positions.Min(p => p.Z) - 50.0;
-                            //place the iso at the midpoint between the brain field inf extent and low spine file sup extent
-                            v.z = CalculationHelper.ComputeAverage(infIsoFieldSupEdge, supFieldInfExtent);
-                            // Check to ensure calculated iso position is not too close to brain iso, If so, push it inf
-                            //if (v.z + 200.0 > tmp.ElementAt(0).Item1.z) v.z = tmp.ElementAt(0).Item1.z - 200.0;
-                            if (v.z + 140.0 > tmp.ElementAt(0).Item1.z) v.z = tmp.ElementAt(0).Item1.z - 140.0;
-                        }
-                        */
 
                         if (i == (numIsos - 1))
                         {
                             v.z = spineZMin + 100;
                         }
-                        
-
-                        /*if (i == 2 && numIsos > 3)
-                        {
-                            v.z = spineZMin + ((numIsos - i - 1) * isoSeparation) + 3;
-
-                        }
-
-                        if (i == 3)
-                        {
-                            v.z = spineZMin + ((numIsos - i - 1) * isoSeparation) + 6;
-
-                        }
-                        */
-
-                        /*
-                         if (i == 1 && numIsos > 2)
-                        {
-                            //if this is iso 2 and the total number of isos is 3, apply this special logic to balance field
-                            //overlap between brain iso and lower spine iso
-                            //inf field superior edge.ptv spine + 18 cm = iso position + 20 cm Y field extent)
-                            double infIsoFieldSupEdge = spineZMin + 180.0 + 200.0;
-                            Structure brainTarget = StructureTuningHelper.GetStructureFromId("PTV_Brain", selectedSS);
-                            //brain field inferior extent (ptv brain inf extent - 5 cm margin)
-                            double supFieldInfExtent = brainTarget.MeshGeometry.Positions.Min(p => p.Z) - 50.0;
-                            //place the iso at the midpoint between the brain field inf extent and low spine file sup extent
-                            v.z = CalculationHelper.ComputeAverage(infIsoFieldSupEdge, supFieldInfExtent);
-                            // Check to ensure calculated iso position is not too close to brain iso, If so, push it inf
-                            if (v.z + 200.0 > tmp.ElementAt(0).Item1.z) v.z = tmp.ElementAt(0).Item1.z - 200.0;
-                        }
-                         */
                     }
 
                     ProvideUIUpdate(100 * ++percentComplete / calcItems, $"Calculated isocenter position {i + 1}");
