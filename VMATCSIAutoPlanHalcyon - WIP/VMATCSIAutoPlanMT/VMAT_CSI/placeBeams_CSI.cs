@@ -390,11 +390,52 @@ namespace VMATCSIAutoPlanMT.VMAT_CSI
             (bool failBrainRetrival, double brainZCenter) = GetBrainZCenter(ref percentComplete, ref calcItems);
             if (failBrainRetrival) return (true, tmp);
 
-            //maximum separation between isocenters (35 cm for 5 cm overlap for linac, 23 cm for halcyon). May remove this since it's not used with the updated
+            //maximum separation between isocenters (35 cm for 5 cm overlap for linac,
+            //Going to change this from 23cm to  26cm for halcyons to allow for a 2cm overlap between isocenters to minimize the number needed).
             //iso placement algorithm
-            isoSeparation = 230.0;
+            isoSeparation = 260.0;
             //isoSeparation = 350.0;
 
+            for (int i = 0; i < numIsos; i++)
+            {
+                VVector v = new VVector();
+                ProvideUIUpdate($"Determining position for isocenter: {i + 1}");
+                //asign x position to user origin x position
+                v.x = xUserOrigin;
+                //asign y position to spineYmin
+                v.y = spineYMin;
+                //assign the first isocenter to the center of the ptv_brain
+                if (i == 0) v.z = brainZCenter-40;
+                else
+                {
+                    //The following code should equally space out any interior isocenters between the brain isocenter and the final
+                    //spine isocenter. It takes the total distance between the two, divides it by the number of isocenters minus one
+                    //to get a stepwise value. Then will place the isocenters until it reaches the final value in the loop function.
+                    double distanceBetweenBrainandSpine = Math.Abs((brainZCenter-40) - (spineZMin));
+                    double InteriorSeparation = Math.Round(distanceBetweenBrainandSpine / (numIsos - 1), 1);
+                    v.z = brainZCenter - i * InteriorSeparation;
+                    //v.z = brainZCenter -  i * isoSeparation;
+                    //v.z = spineZMin + (numIsos - i - 1) * isoSeparation + 120.0;
+
+
+                    //Removing this line, Halcyons double MLC bank allows very little leakage to get through. Just going to place the isocenters with
+                    //equal spacing to minimize the amount of isocenters for each treatment. 
+                    //if (i == (numIsos - 1))
+                    //{
+                    //    v.z = spineZMin + 100;
+                    //}
+                }
+
+                ProvideUIUpdate(100 * ++percentComplete / calcItems, $"Calculated isocenter position {i + 1}");
+                ProvideUIUpdate($"Isocenter position: ({v.x:0.0}, {v.y:0.0}, {v.z:0.0}) mm");
+                tmp.Add(new Tuple<VVector, string, int>(RoundIsocenterPositions(v, thePlan),
+                                                        planIsoBeamInfo.FirstOrDefault(x => string.Equals(x.Item1, thePlan.Id)).Item2.ElementAt(i).Item1,
+                                                        planIsoBeamInfo.FirstOrDefault(x => string.Equals(x.Item1, thePlan.Id)).Item2.ElementAt(i).Item2));
+            }
+
+
+
+            /*
             if (numIsos < 4)
             {
                 for (int i = 0; i < numIsos; i++)
@@ -444,7 +485,7 @@ namespace VMATCSIAutoPlanMT.VMAT_CSI
                             // Check to ensure calculated iso position is not too close to brain iso, If so, push it inf
                             if (v.z + 200.0 > tmp.ElementAt(0).Item1.z) v.z = tmp.ElementAt(0).Item1.z - 200.0;
                         }
-                         */
+
                     }
 
                     ProvideUIUpdate(100 * ++percentComplete / calcItems, $"Calculated isocenter position {i + 1}");
@@ -491,6 +532,8 @@ namespace VMATCSIAutoPlanMT.VMAT_CSI
                                                             planIsoBeamInfo.FirstOrDefault(x => string.Equals(x.Item1, thePlan.Id)).Item2.ElementAt(i).Item2));
                 }
             }
+
+            */
             return (false, tmp);
         }
         #endregion
@@ -500,12 +543,14 @@ namespace VMATCSIAutoPlanMT.VMAT_CSI
         /// Utility method to generate and place the beams for each vmat iso for this plan
         /// </summary>
         /// <param name="iso"></param>
+        /// <param name="numIsos"></param>
         /// <returns></returns>
         protected override bool SetVMATBeams(Tuple<ExternalPlanSetup, List<Tuple<VVector, string, int>>> iso)
         {
             ProvideUIUpdate(0, $"Preparing to set isocenters for plan: {iso.Item1.Id}");
             int percentComplete = 0;
-            int calcItems = 4;
+            //int calcItems = 4;
+            int calcItems = numIsos;
             //int calcItems = 3;
             //bool initCSIPlan = false;
             //if the plan id is equal to the plan Id in the first entry in the prescriptions, then this is the initial plan

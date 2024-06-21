@@ -977,12 +977,15 @@ namespace VMATCSIAutoPlanMT.VMAT_CSI
                 //calcItems = 3;
                 calcItems = 4;
 
-                //Minimum requested field overlap.
-                double minFieldOverlap = 50.0;
+                //Minimum requested field overlap. Changing from 5cm overlap to only a 2cm overlap.
+                double minFieldOverlap = 20.0;
+                //double minFieldOverlap = 50.0;
+
                 //double maxFieldExtent = 400;
                 double maxFieldExtent = 280.0;
+
                 //subtract 50 mm from the numerator as the brain fields have a 50 mm inferior margin on the ptv_brain 
-                double brainInfMargin = 50.0;
+                double brainInfMargin = 90.0;
 
                 //If the target ID is PTV_CSI, calculate the number of isocenters based on PTV_spine and add one iso for the brain
                 //planId, target list
@@ -1029,7 +1032,8 @@ namespace VMATCSIAutoPlanMT.VMAT_CSI
             double numVMATIsosAsDouble = (spineTargetExtent - brainInfMargin) / (maxFieldExtent - minFieldOverlap);
             ProvideUIUpdate($"Spine target extent: {spineTargetExtent:0.00}");
             ProvideUIUpdate($"Num VMAT isos as double: {(spineTargetExtent - brainInfMargin) / (maxFieldExtent - minFieldOverlap):0.00}");
-            if (numVMATIsosAsDouble > 1 && numVMATIsosAsDouble % 1 < 0.1)
+            //if (numVMATIsosAsDouble > 1 && numVMATIsosAsDouble % 1 < 0.1)
+            if (numVMATIsosAsDouble > 1 && numVMATIsosAsDouble % 1 < 0.5)
             {
                 ProvideUIUpdate($"Calculated number of vmat isos MOD 1 is < 0.1 (i.e. an extra {0.1 * (maxFieldExtent - minFieldOverlap):0.0} mm of field is required to cover the spine");
                 numVMATIsosAsDouble = Math.Floor(numVMATIsosAsDouble);
