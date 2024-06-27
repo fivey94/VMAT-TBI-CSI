@@ -1032,8 +1032,8 @@ namespace VMATCSIAutoPlanMT.VMAT_CSI
             double numVMATIsosAsDouble = (spineTargetExtent - brainInfMargin) / (maxFieldExtent - minFieldOverlap);
             ProvideUIUpdate($"Spine target extent: {spineTargetExtent:0.00}");
             ProvideUIUpdate($"Num VMAT isos as double: {(spineTargetExtent - brainInfMargin) / (maxFieldExtent - minFieldOverlap):0.00}");
-            //if (numVMATIsosAsDouble > 1 && numVMATIsosAsDouble % 1 < 0.1)
-            if (numVMATIsosAsDouble > 1 && numVMATIsosAsDouble % 1 < 0.5)
+            if (numVMATIsosAsDouble > 1 && numVMATIsosAsDouble % 1 < 0.1)
+            //if (numVMATIsosAsDouble > 1 && numVMATIsosAsDouble % 1 < 0.5)
             {
                 ProvideUIUpdate($"Calculated number of vmat isos MOD 1 is < 0.1 (i.e. an extra {0.1 * (maxFieldExtent - minFieldOverlap):0.0} mm of field is required to cover the spine");
                 numVMATIsosAsDouble = Math.Floor(numVMATIsosAsDouble);
